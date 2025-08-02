@@ -12,4 +12,10 @@ Step 2 - Different types of applicaion.properties present in real time.
        - To Use any of these mention spring.profiles.active=dev/test/prod anyone in appication.properties
       - All the jars files will be downloaded in Users .m2 folder.
 
-Step 3 - 
+Step 3 - Structureof the files.
+        Controller
+        Service
+        ServiceImpl
+        Repository
+        Entities
+        DTO
