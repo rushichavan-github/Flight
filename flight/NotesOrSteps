@@ -1,0 +1,15 @@
+Step 1 - Spring Initilizer (Use java 17 with 3.x Or use below Java 17 with 2.x)
+        - select gradle or maven build tool  ,  jar , language JAVA
+        - group , artifact id , name
+        - dependency - H2, Dev tools, JPA, WEB
+
+Step 2 - Different types of applicaion.properties present in real time.
+          application.properties
+          application-dev.properties
+          application-test.properties
+          application-prod.properties
+
+       - To Use any of these mention spring.profiles.active=dev/test/prod anyone in appication.properties
+      - All the jars files will be downloaded in Users .m2 folder.
+
+Step 3 - 
