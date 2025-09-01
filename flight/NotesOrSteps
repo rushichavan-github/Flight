@@ -19,3 +19,78 @@ Step 3 - Structureof the files.
         Repository
         Entities
         DTO
+
+Step 4 - Add Email Starter Dependency
+                <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+        Create a Email Service  with required method  (add @EnableAsync in main .java class)
+        @Service
+public class EmailService {
+	
+	@Autowired
+	private JavaMailSender mailSender;
+	
+	@Async
+	public void sendRegistrationEmail(String to, String firstName, String password) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Welcome to Royal Airlines – Your Journey Begins Here!");
+        message.setText("Dear " + firstName + ",\n\n"
+                + "Thank you for registering with Royal Airlines.\n\n"
+                + "Here are your login credentials:\n"
+                + "Username: " + to + "\n"
+                + "Password: " + password + "\n\n"
+                + "For your security, please change your password after your first login.\n\n"
+                + "Regards,\nRoyalAirlines Team");
+
+        mailSender.send(message);
+    }
+	
+	@Async
+	public void sendRemainderEmail(String to,String text) {
+		SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Flight Reminder - Your upcoming flight");
+        message.setText(text);
+
+        mailSender.send(message);
+	}
+
+}
+
+Step 5 - Scheduler (@EnableScheduling in main .java) add method in email service and in which service you want to schedule Cron job method as shown :
+
+        @Scheduled(cron = "0 0/30 * * * ?") // runs every 30 minutes
+	public void sendReminders() {
+	    LocalDateTime now = LocalDateTime.now();
+	    LocalDateTime reminderTimeStart = now.plusHours(24);
+	    LocalDateTime reminderTimeEnd = now.plusHours(24).plusMinutes(30);
+
+	    List<Booking> flightsToRemind =
+	            bookingRepository.findByFlightTimeBetween(reminderTimeStart, reminderTimeEnd);
+
+	    for (Booking booking : flightsToRemind) {
+
+	        // Use values from the booking entity
+	        String passengerName = booking.getPassengerName();
+	        String passengerEmail = booking.getPassengerEmail();
+	        String bookingPnr = booking.getBookingPnr();
+	        LocalDateTime flightTime = booking.getFlightTime();
+
+	        String formattedTime = flightTime.format(DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm"));
+
+	        String text = "Dear " + passengerName + ",\n\n" +
+	                "This is a reminder that you have a scheduled flight:\n" +
+	                "Booking ID / PNR: " + bookingPnr + "\n" +
+	                "Departure Time: " + formattedTime + "\n\n" +
+	                "Please ensure you arrive at the airport at least 2 hours before departure.\n\n" +
+	                "Safe travels!\n" +
+	                "Your Airline Team";
+
+	        
+	        emailService.sendRemainderEmail(passengerEmail, text);
+	    }
+	}
